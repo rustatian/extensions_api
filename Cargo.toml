@@ -1,0 +1,13 @@
+[package]
+name = "extension_api"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96.1"
+license = "MIT"
+description = "Native rapira extension contract — the API every extension implements to drive PHP"
+
+[dependencies]
+anyhow = "1"
+
+[lints.clippy]
+all = "warn"
