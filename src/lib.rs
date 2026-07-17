@@ -105,24 +105,6 @@ pub struct Request {
     pub body: Vec<u8>,
 }
 
-impl Request {
-    /// A bodyless `GET` for `uri` with sensible defaults (tests / internal calls).
-    pub fn get(uri: &str) -> Self {
-        Self {
-            method: "GET".into(),
-            uri: uri.into(),
-            https: false,
-            protocol: "HTTP/1.1".into(),
-            remote_addr: "127.0.0.1".into(),
-            remote_port: 0,
-            server_name: "localhost".into(),
-            server_port: 80,
-            headers: Vec::new(),
-            body: Vec::new(),
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct Response {
     pub status: u16,
