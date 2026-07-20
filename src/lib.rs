@@ -2,8 +2,9 @@
 //!
 //! An extension is a standalone crate — its own repository, compiled into rapira — that
 //! **drives PHP**: its async [`Extension::run`] reaches rapira's PHP worker pool through
-//! [`Php`]. The host constructs it ([`Extension::init`]), drives `run`, and asks it to
-//! stop with [`Extension::shutdown`].
+//! [`Php`]. The host constructs it ([`Extension::init`], injecting its typed
+//! [`Extension::Config`]), drives `run`, and asks it to stop with
+//! [`Extension::shutdown`].
 
 use std::future::Future;
 use std::path::{Path, PathBuf};
@@ -15,12 +16,17 @@ pub type Result<T = (), E = anyhow::Error> = std::result::Result<T, E>;
 
 /// A native rapira extension: a long-lived service that drives PHP via [`Php`].
 ///
-/// Lifecycle: `init` (construct) → `run` (serve) → `shutdown` (drain). `run` and
-/// `shutdown` are never borrowed at once — the host drops the in-flight `run` future
-/// before it calls `shutdown` (see `extension_host`).
+/// Lifecycle: `init` (construct, injecting [`Extension::Config`]) → `run` (serve) →
+/// `shutdown` (drain). `run` and `shutdown` are never borrowed at once — the host drops
+/// the in-flight `run` future before it calls `shutdown` (see `extension_host`).
 pub trait Extension: Send + 'static {
-    /// Construct the extension. Cheap and infallible; heavy setup belongs in `run`.
-    fn init() -> Self
+    /// Extension-specific configuration, injected at construction. `()` when the
+    /// extension needs none.
+    type Config;
+
+    /// Construct the extension: internal initialization plus storing `config`. Cheap
+    /// and infallible; heavy setup belongs in `run`.
+    fn init(config: Self::Config) -> Self
     where
         Self: Sized;
 
